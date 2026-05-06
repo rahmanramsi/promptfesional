@@ -1,59 +1,77 @@
-import Image from "next/image";
-import Link from "next/link";
-import { getAllPrompts } from "@/data/prompts";
+import { Suspense } from "react";
+import { fetchPrompts, fetchCategories } from "@/lib/supabase/queries";
+import SearchBar from "@/components/SearchBar";
+import CategoryFilter from "@/components/CategoryFilter";
+import SortSelect from "@/components/SortSelect";
+import PromptGrid from "@/components/PromptGrid";
+import Pagination from "@/components/Pagination";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import EmptyState from "@/components/EmptyState";
 
-export default async function Home() {
-  const prompts = await getAllPrompts();
+interface HomeProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const search = typeof params.q === "string" ? params.q : "";
+  const category = typeof params.category === "string" ? params.category : "";
+  const sort = typeof params.sort === "string" ? params.sort : "newest";
+
+  const promptsData = await fetchPrompts({ page, search, category, sort });
+
+  const { prompts, totalPages, currentPage } = promptsData;
+  const hasSearch = !!(search || category);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
-          Promptfesional
-        </h1>
-        <p className="mt-3 text-lg text-zinc-500 dark:text-zinc-400">
-          Kumpulan prompt image berkualitas untuk inspirasi kreatifmu.
-        </p>
-      </div>
-
-      {prompts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg text-zinc-500 dark:text-zinc-400">
-            Belum ada prompt.
+    <div className="flex flex-col flex-1">
+      <section className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+            Promptfesional
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Discover and share AI image prompts
           </p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {prompts.map((prompt) => (
-            <Link
-              key={prompt.id}
-              href={`/prompt/${prompt.id}`}
-              className="group overflow-hidden rounded-xl border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <div className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                <Image
-                  src={prompt.image_url}
-                  alt={prompt.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-zinc-900 dark:text-white">
-                  {prompt.title}
-                </h3>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {prompt.model}
-                </p>
-                <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-                  oleh {prompt.author.username}
-                </p>
-              </div>
-            </Link>
-          ))}
+      </section>
+
+      <div className="flex-1 max-w-7xl mx-auto px-4 py-6 w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+          <SearchBar />
+          <div className="flex items-center gap-3 ml-auto">
+            <SortSelect />
+          </div>
         </div>
-      )}
+
+        <Suspense fallback={<div />}>
+          <CategoriesSection />
+        </Suspense>
+
+        <div className="mt-6">
+          <Suspense fallback={<LoadingSkeleton />}>
+            {prompts.length > 0 ? (
+              <>
+                <PromptGrid prompts={prompts} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} />
+              </>
+            ) : (
+              <EmptyState hasSearch={hasSearch} />
+            )}
+          </Suspense>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function CategoriesSection() {
+  const categories = await fetchCategories();
+  if (categories.length === 0) return null;
+  return (
+    <div className="overflow-x-auto pb-2">
+      <CategoryFilter categories={categories} />
     </div>
   );
 }

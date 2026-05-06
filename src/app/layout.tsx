@@ -16,17 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Promptfesional - Kumpulan Prompt Image",
+    default: "Promptfesional — Discover AI Image Prompts",
     template: "%s | Promptfesional",
   },
   description:
-    "Kumpulan prompt image berkualitas untuk inspirasi kreatifmu.",
-  openGraph: {
-    title: "Promptfesional",
-    description:
-      "Kumpulan prompt image berkualitas untuk inspirasi kreatifmu.",
-    siteName: "Promptfesional",
-  },
+    "Browse and share AI-generated image prompts. Discover prompts from Stable Diffusion, Midjourney, DALL-E, and more.",
 };
 
 export default function RootLayout({
@@ -36,12 +30,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="id"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <body className="flex min-h-full flex-col bg-white dark:bg-black">
         <Navbar />
-        <main className="flex-1">{children}</main>
+        {children}
         <Footer />
       </body>
     </html>
