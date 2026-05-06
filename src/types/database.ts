@@ -144,3 +144,17 @@ export type PromptWithDetails = Prompt & {
     categories: Pick<Category, "id" | "name" | "slug"> | null;
   }>;
 };
+
+export interface PromptParameters {
+  steps: number;
+  cfg_scale: number;
+  seed: number;
+  width: number;
+  height: number;
+  sampler: string;
+}
+
+export interface PromptWithAuthor extends Prompt {
+  author: Pick<Profile, "username" | "avatar_url">;
+  categories: Pick<Category, "id" | "name" | "slug">[];
+}
