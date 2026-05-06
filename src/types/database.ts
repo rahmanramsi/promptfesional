@@ -133,3 +133,14 @@ export interface Database {
     CompositeTypes: Record<string, never>;
   };
 }
+
+export type Prompt = Database["public"]["Tables"]["prompts"]["Row"];
+export type Category = Database["public"]["Tables"]["categories"]["Row"];
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+
+export type PromptWithDetails = Prompt & {
+  profiles: Pick<Profile, "username" | "avatar_url"> | null;
+  prompt_categories: Array<{
+    categories: Pick<Category, "id" | "name" | "slug"> | null;
+  }>;
+};

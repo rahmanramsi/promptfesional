@@ -16,10 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Promptfesional",
+    default: "Promptfesional — Discover AI Image Prompts",
     template: "%s | Promptfesional",
   },
-  description: "Professional prompt engineering platform",
+  description:
+    "Browse and share AI-generated image prompts. Discover prompts from Stable Diffusion, Midjourney, DALL-E, and more.",
 };
 
 export default function RootLayout({
