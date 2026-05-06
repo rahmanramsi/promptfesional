@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Promptfesional",
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
